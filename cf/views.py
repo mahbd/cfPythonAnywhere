@@ -1,4 +1,7 @@
+import json
+
 from django.http import JsonResponse, Http404
+
 from cf.models import Handle, Problems
 
 
@@ -8,11 +11,25 @@ def add_handle(request):
             name = request.POST['name']
             handle = request.POST['handle']
             Handle.objects.get_or_create(name=name, handle=handle)
-            return JsonResponse({'status':True})
+            return JsonResponse({'status': True})
         except KeyError:
-            return JsonResponse({'status':False, 'reason': 'KeyError'})
+            return JsonResponse({'status': False, 'reason': 'KeyError'})
     else:
         raise Http404
+
+
+def _add_problem(name, link, handle):
+    Problems.objects.get_or_create(name=name, link=link)
+    problem = Problems.objects.get(name=name, link=link)
+    try:
+        problem.solver.get(handle=handle)
+        return 'D'
+    except Handle.DoesNotExist:
+        solver = Handle.objects.create(handle=handle)
+        problem.solver.add(solver)
+        problem.num_sol += 1
+        problem.save()
+        return 'O'
 
 
 def add_problem(request):
@@ -21,23 +38,25 @@ def add_problem(request):
             name = request.POST['name']
             link = request.POST['link']
             solver_handle = request.POST['solver']
-            try:
-                problem = Problems.objects.get(name=name)
-            except Problems.DoesNotExist:
-                Problems.objects.create(name=name, link=link)
-                problem = Problems.objects.get(name=name)
-            try:
-                problem.solver.get(handle=solver_handle)
+            res = _add_problem(name, link, solver_handle)
+            if res == 'D':
                 return JsonResponse({'status': False, 'reason': 'AlreadyAdded'})
-            except Handle.DoesNotExist:
-                Handle.objects.get_or_create(handle=solver_handle)
-                solver_id = Handle.objects.get(handle=solver_handle).id
-                problem.solver.add(solver_id)
-                problem.num_sol += 1
-                problem.save()
-                return JsonResponse({'status':True})
+            else:
+                return JsonResponse({'status': True})
         except KeyError:
             return JsonResponse({'status': False, 'reason': 'KeyError'})
+
+
+def add_problems(request):
+    data = json.loads(request.body)
+    dp, su = 0, 0
+    for problem in data['problems']:
+        res = _add_problem(problem['name'], problem['link'], problem['solver'])
+        if res == 'D':
+            dp += 1
+        else:
+            su += 1
+    return JsonResponse({"success": su, "duplicate": dp})
 
 
 def get_list(request, start=0, end=30):
