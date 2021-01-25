@@ -32,7 +32,10 @@ def _add_problem(name, link, handle, check=True):
         problem.solver.get(handle=handle)
         return 'D'
     except Handle.DoesNotExist:
-        solver = Handle.objects.create(handle=handle)
+        try:
+            solver = Handle.objects.get(handle=handle)
+        except Handle.DoesNotExist:
+            solver = Handle.objects.create(handle=handle)
         problem.solver.add(solver)
         problem.num_sol += 1
         problem.save()

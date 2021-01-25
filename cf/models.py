@@ -3,7 +3,7 @@ from django.db import models
 
 class Handle(models.Model):
     name = models.CharField(blank=True, null=True, max_length=200)
-    handle = models.CharField(blank=True, null=True, max_length=200)
+    handle = models.CharField(max_length=200, unique=True)
     batch = models.TextField(blank=True, null=True)
 
 
