@@ -63,7 +63,7 @@ def add_problems(request):
     dp, su = 0, 0
     for problem in data['problems']:
         if not added_problems.get(problem['name']) or problem['solver'] not in added_problems.get(problem['name']):
-            check = True if added_problems.get(problem['name']) else False
+            check = False if added_problems.get(problem['name']) else True
             res = _add_problem(problem['name'], problem['link'], problem['solver'], check)
             if res == 'D':
                 dp += 1
