@@ -18,8 +18,9 @@ def add_handle(request):
         raise Http404
 
 
-def _add_problem(name, link, handle):
-    Problems.objects.get_or_create(name=name, link=link)
+def _add_problem(name, link, handle, check=True):
+    if check:
+        Problems.objects.get_or_create(name=name, link=link)
     problem = Problems.objects.get(name=name, link=link)
     try:
         problem.solver.get(handle=handle)
@@ -49,13 +50,20 @@ def add_problem(request):
 
 def add_problems(request):
     data = json.loads(request.body)
+    added_problems = {}
+    for problems in Problems.objects.all():
+        added_problems[problems.name] = []
+        for solver in problems.solver.all():
+            added_problems[problems.name].append(solver.handle)
     dp, su = 0, 0
     for problem in data['problems']:
-        res = _add_problem(problem['name'], problem['link'], problem['solver'])
-        if res == 'D':
-            dp += 1
-        else:
-            su += 1
+        if not added_problems.get(problem['name']) or problem['solver'] not in added_problems.get(problem['name']):
+            check = True if added_problems.get(problem['name']) else False
+            res = _add_problem(problem['name'], problem['link'], problem['solver'], check)
+            if res == 'D':
+                dp += 1
+            else:
+                su += 1
     return JsonResponse({"success": su, "duplicate": dp})
 
 
