@@ -21,7 +21,7 @@ def add_handle(request):
 def _add_problem(name, link, handle, check=True):
     if check:
         Problems.objects.get_or_create(name=name, link=link)
-    problem = Problems.objects.get(name=name, link=link)
+    problem = Problems.objects.get(name=name)
     try:
         problem.solver.get(handle=handle)
         return 'D'
