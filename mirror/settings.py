@@ -124,7 +124,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 30000
 
 # default static files settings for PythonAnywhere.
 # see https://help.pythonanywhere.com/pages/DjangoStaticFiles for more info
-MEDIA_ROOT = os.path.join(PROJECT_DIR, str('media'))
+MEDIA_ROOT = os.path.join(BASE_DIR, str('media'))
 MEDIA_URL = '/media/'
-STATIC_ROOT = os.path.join(PROJECT_DIR, str('static'))
+STATIC_ROOT = os.path.join(BASE_DIR, str('static'))
 STATIC_URL = '/static/'
