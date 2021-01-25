@@ -20,7 +20,8 @@ def add_handle(request):
 
 def _add_problem(name, link, handle, check=True):
     if check:
-        Problems.objects.get_or_create(name=name, link=link)
+        if not Problems.objects.filter(name=name).exists():
+            Problems.objects.create(name=name, link=link)
     try:
         problem = Problems.objects.get(name=name)
     except Problems.DoesNotExist:
@@ -68,7 +69,7 @@ def add_problems(request):
     dp, su, er, mo = 0, 0, 0, []
     for problem in data['problems']:
         if not added_problems.get(problem['name']) or problem['solver'] not in added_problems.get(problem['name']):
-            check = False if added_problems.get(problem['name']) else True
+            check = not hasattr(added_problems, problem['name'])
             res = _add_problem(problem['name'], problem['link'], problem['solver'], check)
             if res == 'D':
                 dp += 1
