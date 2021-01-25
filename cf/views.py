@@ -21,7 +21,12 @@ def add_handle(request):
 def _add_problem(name, link, handle, check=True):
     if check:
         Problems.objects.get_or_create(name=name, link=link)
-    problem = Problems.objects.get(name=name)
+    try:
+        problem = Problems.objects.get(name=name)
+    except Problems.DoesNotExist:
+        return 'E'
+    except Problems.MultipleObjectsReturned:
+        return 'M'
     try:
         problem.solver.get(handle=handle)
         return 'D'
@@ -60,16 +65,20 @@ def add_problems(request):
         added_problems[problems.name] = []
         for solver in problems.solver.all():
             added_problems[problems.name].append(solver.handle)
-    dp, su = 0, 0
+    dp, su, er, mo = 0, 0, 0, []
     for problem in data['problems']:
         if not added_problems.get(problem['name']) or problem['solver'] not in added_problems.get(problem['name']):
             check = False if added_problems.get(problem['name']) else True
             res = _add_problem(problem['name'], problem['link'], problem['solver'], check)
             if res == 'D':
                 dp += 1
+            elif res == 'E':
+                er += 1
+            elif res == 'M':
+                mo.append(problem['name'])
             else:
                 su += 1
-    return JsonResponse({"success": su, "duplicate": dp})
+    return JsonResponse({"success": su, "duplicate": dp, "error": er, "multiple": mo})
 
 
 def get_list(request, start=0, end=30):
