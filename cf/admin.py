@@ -13,5 +13,5 @@ class HandleAdmin(admin.ModelAdmin):
     list_display = ('name', 'handle', 'batch')
 
 
-admin.site.register(Handle, ProblemsAdmin)
-admin.site.register(Problems, HandleAdmin)
+admin.site.register(Handle, HandleAdmin)
+admin.site.register(Problems, ProblemsAdmin)
