@@ -6,6 +6,9 @@ class Handle(models.Model):
     handle = models.CharField(max_length=200, unique=True)
     batch = models.TextField(blank=True, null=True)
 
+    class Meta:
+        ordering = ['-batch', '-name', 'handle']
+
 
 class Problems(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True, unique=True)
