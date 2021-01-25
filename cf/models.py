@@ -11,7 +11,7 @@ class Handle(models.Model):
 
 
 class Problems(models.Model):
-    name = models.TextField(blank=True, null=True, unique=True)
+    name = models.CharField(max_length=255, blank=True, null=True, unique=True)
     link = models.TextField(blank=True, null=True)
     solver = models.ManyToManyField(Handle, blank=True)
     num_sol = models.IntegerField(default=0)
