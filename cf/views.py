@@ -49,7 +49,12 @@ def add_problem(request):
 
 
 def add_problems(request):
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        print(request.body)
+        print(request.POST)
+        return JsonResponse({"status": 'Error in body'})
     added_problems = {}
     for problems in Problems.objects.all():
         added_problems[problems.name] = []
